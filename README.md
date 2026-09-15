@@ -1,0 +1,1 @@
+# infosul-assets
