@@ -25,7 +25,7 @@ if (-not $exes) { throw "Nenhum .exe em $Pasta" }
 foreach ($exe in $exes) {
     $sigArgs = @("sign", "/fd", "SHA256", "/tr", $Timestamp, "/td", "SHA256", "/d", "INFOSUL Scanner")
     if ($Thumbprint) { $sigArgs += @("/sha1", $Thumbprint) } else { $sigArgs += "/a" }
-    & $signtool.FullName @args $exe.FullName
+    & $signtool.FullName @sigArgs $exe.FullName
     if ($LASTEXITCODE -ne 0) { throw "Falha ao assinar $($exe.Name)" }
     & $signtool.FullName verify /pa /v $exe.FullName | Select-String "Issued to|Successfully verified"
 }
