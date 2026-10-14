@@ -17,7 +17,7 @@ import (
 	"sync"
 )
 
-var version = "1.0.0"
+var version = "1.0.1"
 
 func main() {
 	// Aceita também a sintaxe do console original: /r:<faixa> /s:<arquivo> /f:<arquivo> /v

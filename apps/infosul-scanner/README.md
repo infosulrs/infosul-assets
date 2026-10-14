@@ -30,11 +30,15 @@ INFOSUL-Scanner-Console.exe /s:faixas.txt /f:resultado.csv
 INFOSUL-Scanner-Console.exe -r 10.0.0.0/24 -f inventario.html -t 128
 ```
 
+Sobre o aviso do SmartScreen e a assinatura de código, veja [docs/smartscreen.md](docs/smartscreen.md).
+
 Dados e opções ficam em `%APPDATA%\INFOSUL Scanner\dados.json`.
 
 ## Compilar
 
 Requer Go 1.22 ou superior. Compila a partir do Linux ou do Windows, sem CGO.
+Ícone, versão e manifesto ficam em `winres/` e são gerados nos `rsrc_windows_*.syso` (já versionados).
+Para regenerar após mudar o ícone: `go run github.com/tc-hib/go-winres@latest make --arch amd64,386`.
 
 ```bash
 go test ./...

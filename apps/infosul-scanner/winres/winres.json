@@ -1,0 +1,36 @@
+{
+  "RT_GROUP_ICON": {
+    "APP": { "0000": ["icon-256.png", "icon-48.png", "icon-32.png", "icon-16.png"] }
+  },
+  "RT_MANIFEST": {
+    "#1": {
+      "0409": {
+        "identity": { "name": "INFOSUL.Scanner", "version": "1.0.1.0" },
+        "description": "INFOSUL Scanner",
+        "minimum-os": "win10",
+        "execution-level": "as invoker",
+        "dpi-awareness": "per monitor v2",
+        "use-common-controls-v6": true
+      }
+    }
+  },
+  "RT_VERSION": {
+    "#1": {
+      "0000": {
+        "fixed": { "file_version": "1.0.1.0", "product_version": "1.0.1.0" },
+        "info": {
+          "0416": {
+            "CompanyName": "INFOSUL Redes de Computadores",
+            "FileDescription": "INFOSUL Scanner - Scanner de rede",
+            "FileVersion": "1.0.1",
+            "InternalName": "INFOSUL-Scanner",
+            "LegalCopyright": "© 2026 INFOSUL Redes de Computadores, Porto Alegre, RS",
+            "OriginalFilename": "INFOSUL-Scanner.exe",
+            "ProductName": "INFOSUL Scanner",
+            "ProductVersion": "1.0.1"
+          }
+        }
+      }
+    }
+  }
+}
