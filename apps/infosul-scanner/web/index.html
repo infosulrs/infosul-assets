@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>INFOSUL Scanner</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <span class="brand-name">INFOSUL</span>
+    <span class="brand-sub">Scanner de Rede</span>
+  </div>
+  <nav class="top-actions">
+    <button class="ghost" id="btnOptions" title="Opções">Opções</button>
+    <div class="menu-wrap">
+      <button class="ghost" id="btnExport">Exportar</button>
+      <div class="dropdown" id="exportMenu" hidden>
+        <button data-exp="csv">CSV (Excel)</button>
+        <button data-exp="csvc">CSV com vírgula</button>
+        <button data-exp="html">Relatório HTML</button>
+        <button data-exp="xml">XML</button>
+        <button data-exp="print">Imprimir</button>
+        <hr>
+        <label class="chk"><input type="checkbox" id="expAlive" checked> Somente ativos</label>
+      </div>
+    </div>
+    <button class="ghost" id="btnAbout">Sobre</button>
+  </nav>
+</header>
+
+<section class="toolbar">
+  <button class="primary" id="btnScan"><span class="ico">&#9654;</span><span id="scanLabel">Verificar</span></button>
+  <div class="range">
+    <input id="range" list="mru" autocomplete="off" spellcheck="false" placeholder="Exemplo: 192.168.0.1-100, 192.168.0.200">
+    <datalist id="mru"></datalist>
+  </div>
+  <button class="secondary" id="btnSubnet" title="Sub-rede deste computador será verificada">Sub-rede deste PC</button>
+  <button class="secondary" id="btnClassC" title='Sub-rede classe "C" será verificada'>Classe C</button>
+  <button class="secondary" id="btnImport" title="Verificar em arquivo">Importar lista</button>
+  <input type="file" id="fileImport" accept=".txt,.csv" hidden>
+  <input id="search" type="search" placeholder="Pesquisar" spellcheck="false">
+</section>
+
+<section class="tabs">
+  <button class="tab active" data-tab="results">Resultados <span id="cntResults">0</span></button>
+  <button class="tab" data-tab="favorites">Favoritos <span id="cntFav">0</span></button>
+  <div class="fav-tools" id="favTools" hidden>
+    <button class="secondary" id="btnFavScan">Verificar favoritos</button>
+    <button class="secondary" id="btnFavAdd">Adicionar computador</button>
+  </div>
+  <div class="filters">
+    <label class="chk"><input type="checkbox" id="fAlive" checked> Mostrar ativos</label>
+    <label class="chk"><input type="checkbox" id="fDead"> Mostrar inativos</label>
+    <label class="chk"><input type="checkbox" id="fDetails" checked> Painel de detalhes</label>
+  </div>
+</section>
+
+<main class="work">
+  <div class="grid-wrap">
+    <table class="grid" id="grid">
+      <thead><tr>
+        <th data-sort="status" class="c-status">Status</th>
+        <th data-sort="name">Nome</th>
+        <th data-sort="ip" class="c-ip">IP</th>
+        <th data-sort="vendor">Fabricante</th>
+        <th data-sort="mac" class="c-mac">Endereço MAC</th>
+        <th data-sort="type">Tipo</th>
+        <th>Serviços</th>
+        <th data-sort="comment">Comentários</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="empty" id="empty">
+      <p><b>Nenhuma verificação ainda.</b></p>
+      <p>Informe uma faixa ou clique em <b>Sub-rede deste PC</b> e depois em <b>Verificar</b>.</p>
+    </div>
+  </div>
+  <aside class="details" id="details">
+    <div class="details-empty">Selecione um host para ver os detalhes.</div>
+  </aside>
+</main>
+
+<footer class="status">
+  <div class="bar"><div class="bar-fill" id="barFill"></div></div>
+  <span id="statusText">Pronto</span>
+</footer>
+
+<div class="ctx" id="ctx" hidden></div>
+<div class="toast" id="toast" hidden></div>
+
+<dialog id="dlgOptions">
+  <form method="dialog" class="dlg">
+    <h2>Opções</h2>
+    <fieldset>
+      <legend>Velocidade de verificação</legend>
+      <label>Threads <input type="range" id="oThreads" min="1" max="256" step="1"> <b id="oThreadsVal"></b></label>
+      <p class="hint">Verificação rápida, elevado uso da CPU (mais threads). Verificação lenta, baixo uso da CPU (menos threads).</p>
+      <label>Tempo limite por tentativa (ms) <input type="number" id="oTimeout" min="100" max="10000" step="50"></label>
+      <label class="chk"><input type="checkbox" id="oHigh"> Verificação de elevada precisão (velocidade mais baixa)</label>
+    </fieldset>
+    <fieldset>
+      <legend>Recursos de verificação</legend>
+      <div class="cols">
+        <label class="chk"><input type="checkbox" data-g="http"> HTTP</label>
+        <label class="chk"><input type="checkbox" data-g="https"> HTTPS</label>
+        <label class="chk"><input type="checkbox" data-g="ftp"> FTP</label>
+        <label class="chk"><input type="checkbox" data-g="ssh"> SSH</label>
+        <label class="chk"><input type="checkbox" data-g="telnet"> Telnet</label>
+        <label class="chk"><input type="checkbox" data-g="rdp"> RDP</label>
+        <label class="chk"><input type="checkbox" data-g="radmin"> Radmin</label>
+        <label class="chk"><input type="checkbox" data-g="netbios"> NetBIOS (nome, grupo, usuário)</label>
+        <label class="chk"><input type="checkbox" data-g="shares"> Pastas e impressoras compartilhadas</label>
+        <label class="chk"><input type="checkbox" data-g="cftv"> CFTV (RTSP, Intelbras/Dahua, Hikvision)</label>
+        <label class="chk"><input type="checkbox" data-g="mikrotik"> MikroTik (Winbox, API)</label>
+        <label class="chk"><input type="checkbox" data-g="printer"> Impressoras (9100)</label>
+        <label class="chk"><input type="checkbox" data-g="misc"> VNC e Zabbix Agent</label>
+      </div>
+      <label>Portas TCP extras <input id="oExtra" placeholder="ex.: 8443, 8888, 3306"></label>
+    </fieldset>
+    <fieldset>
+      <legend>Dados</legend>
+      <button type="button" class="secondary" id="btnClear">Excluir dados armazenados</button>
+      <p class="hint">Exclui nomes, comentários e endereços MAC salvos para todos os computadores. Favoritos são mantidos.</p>
+    </fieldset>
+    <div class="dlg-actions">
+      <button value="cancel" class="secondary">Cancelar</button>
+      <button value="ok" class="primary" id="oSave">Salvar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlgEdit">
+  <form method="dialog" class="dlg">
+    <h2 id="eTitle">Editar</h2>
+    <label>Nome <input id="eName"></label>
+    <label>Comentários <textarea id="eComment" rows="3"></textarea></label>
+    <div class="dlg-actions">
+      <button value="cancel" class="secondary">Cancelar</button>
+      <button value="ok" class="primary">Salvar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlgFav">
+  <form method="dialog" class="dlg">
+    <h2>Adicionar computador</h2>
+    <label>IP <input id="fIP" required placeholder="192.168.0.10"></label>
+    <label>MAC <input id="fMAC" placeholder="AA:BB:CC:DD:EE:FF"></label>
+    <label>Nome <input id="fName"></label>
+    <label>Comentários <input id="fComment"></label>
+    <div class="dlg-actions">
+      <button value="cancel" class="secondary">Cancelar</button>
+      <button value="ok" class="primary">Adicionar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlgShutdown">
+  <form method="dialog" class="dlg">
+    <h2>Opções de desligamento</h2>
+    <p class="hint" id="sTarget"></p>
+    <label class="chk"><input type="radio" name="sMode" value="shutdown" checked> Desligar</label>
+    <label class="chk"><input type="radio" name="sMode" value="reboot"> Reinicializar</label>
+    <label>Tempo limite (seg) <input type="number" id="sTimeout" min="0" max="315360000" value="30"></label>
+    <label class="chk"><input type="checkbox" id="sForce"> Desligamento forçado</label>
+    <label>Mensagem <input id="sMsg" placeholder="O computador será desligado pela INFOSUL."></label>
+    <p class="hint">Requer permissão de administrador no computador remoto (usa o comando shutdown do Windows).</p>
+    <div class="dlg-actions">
+      <button value="cancel" class="secondary">Cancelar</button>
+      <button value="ok" class="primary">Executar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlgAbout">
+  <form method="dialog" class="dlg about">
+    <div class="about-brand">INFOSUL</div>
+    <div class="gold-line"></div>
+    <p><b>INFOSUL Scanner</b> <span id="aVersion"></span></p>
+    <p>Scanner de rede local: ICMP, ARP, NetBIOS, serviços (HTTP, HTTPS, FTP, SSH, RDP, Radmin, SMB, CFTV, MikroTik), pastas compartilhadas, Wake-on-LAN e desligamento remoto.</p>
+    <p class="hint">INFOSUL Redes de Computadores · Porto Alegre, RS<br>Fabricantes: base pública IEEE OUI.</p>
+    <div class="dlg-actions"><button value="ok" class="primary">Fechar</button></div>
+  </form>
+</dialog>
+
+<script src="app.js"></script>
+</body>
+</html>
